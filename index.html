@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>沖繩６日５夜・海島慢旅</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --ink:#163449;
+    --paper:#FBF3E1;
+    --paper2:#F0E2C4;
+    --paper3:#EAD9B0;
+    --lagoon:#1F8A82;
+    --lagoon-deep:#125F59;
+    --coral:#E8A23C;
+    --coral-deep:#C97F1F;
+    --gold:#D9A441;
+    --ocean:#0B4F6C;
+    --sky:#3A8DBF;
+    --line: rgba(22,52,73,0.14);
+    --shadow: 0 6px 18px rgba(11,79,108,0.12);
+    --radius:16px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; overflow-x:hidden; width:100%;}
+  body{
+    background-color:var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans TC', -apple-system, sans-serif;
+    padding-bottom:128px;
+    background-image:
+      radial-gradient(circle at 18% -6%, rgba(255,214,150,0.60), transparent 46%),
+      radial-gradient(circle at 100% 12%, rgba(79,209,197,0.20), transparent 45%),
+      linear-gradient(180deg, #EAF6F3 0%, #FBF3E1 52%, #F6E3BC 100%);
+    background-attachment:fixed;
+    min-height:100vh;
+  }
+  h1,h2,h3{font-family:'Klee One', cursive; margin:0;}
+  .mono{font-family:'Space Mono',monospace;}
+
+  /* ===== Hero ===== */
+  .hero{
+    padding:30px 20px 22px;
+    position:relative;
+    color:#fff;
+    background:linear-gradient(155deg,#0B4F6C 0%,#146E8C 40%,#1F8A82 75%,#4FD1C5 100%);
+    background-size:200% 200%;
+    animation:tide 16s ease-in-out infinite;
+    overflow:hidden;
+  }
+  @keyframes tide{0%{background-position:0% 30%;}50%{background-position:100% 70%;}100%{background-position:0% 30%;}}
+  .hero .eyebrow{
+    font-size:12px; letter-spacing:.28em; font-family:'Space Mono',monospace; opacity:.85;
+    display:flex; align-items:center; gap:8px; margin-bottom:8px;
+  }
+  .hero .eyebrow::before{content:"🌺"; font-size:14px;}
+  .hero h1{font-size:27px; font-weight:600; line-height:1.3; letter-spacing:.01em; text-shadow:0 3px 14px rgba(0,0,0,.15);}
+  .hero h1 span{color:#FFE3B3;}
+  .hero p.sub{margin-top:8px; font-size:13px; opacity:.92; line-height:1.6;}
+  .hero .base-card{
+    margin-top:14px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.35);
+    color:#fff; border-radius:var(--radius); padding:12px 14px; font-size:12.5px;
+    display:flex; gap:10px; align-items:flex-start; backdrop-filter:blur(4px);
+  }
+  .hero .base-card b{color:#FFE3B3; font-family:'Klee One',cursive; font-size:13px;}
+  .hero-wave{position:absolute; bottom:-1px; left:0; right:0; line-height:0;}
+  .hero-wave svg{display:block; width:100%; height:34px;}
+
+  /* ===== Tabs (shell stamp style) ===== */
+  .tabbar{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    display:flex; gap:8px; overflow-x:auto;
+    padding:14px 14px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,#0E5A78 0%,#0B4F6C 100%);
+    border-top:2px solid rgba(255,214,150,0.55);
+    border-radius:22px 22px 0 0;
+    box-shadow:0 -10px 26px rgba(11,79,108,0.30);
+    -ms-overflow-style:none; scrollbar-width:none;
+  }
+  .tabbar::-webkit-scrollbar{display:none;}
+  .tab{
+    flex:0 0 auto; cursor:pointer; user-select:none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    width:58px; height:58px; border-radius:14px;
+    border:2px solid var(--ocean); background:#fff;
+    transform:rotate(-2deg);
+    transition:transform .15s ease, background .15s ease, color .15s ease;
+  }
+  .tab:nth-child(even){transform:rotate(2deg);}
+  .tab .num{font-family:'Klee One',cursive; font-weight:600; font-size:17px; line-height:1; color:var(--ocean);}
+  .tab .cn{font-size:9.5px; letter-spacing:.05em; margin-top:2px; color:var(--ocean);}
+  .tab.active{
+    background:var(--coral); border-color:var(--coral-deep); transform:rotate(0deg) scale(1.06);
+    box-shadow:var(--shadow);
+  }
+  .tab.active .num, .tab.active .cn{color:#fff;}
+  .tab.util{border-style:dashed;}
+  .tab.util.active{background:var(--lagoon); border-color:var(--lagoon-deep);}
+
+  /* ===== Panels ===== */
+  .panel{display:none; padding:16px 14px 8px; max-width:640px; margin:0 auto;}
+  .panel.active{display:block; animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .day-title{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:4px;}
+  .day-title h2{font-size:20px; font-weight:600;}
+  .day-title .day-note{font-size:12.5px; color:#4C6B7A; margin-top:3px; line-height:1.6;}
+  .field-edit-btn{
+    display:none; flex:0 0 auto; border:1.5px solid var(--gold); background:#FFF6E4; color:#8a611b;
+    border-radius:20px; font-size:10.5px; font-weight:700; padding:2px 8px; cursor:pointer; font-family:inherit;
+    align-items:center; gap:3px; margin-left:6px;
+  }
+  body.editing .field-edit-btn{display:inline-flex;}
+
+  /* Summary card */
+  .summary{
+    margin-top:12px; border-radius:var(--radius); background:var(--paper2);
+    border:1.5px solid var(--ocean); padding:12px 14px; display:flex; gap:14px;
+    box-shadow:var(--shadow);
+  }
+  .summary .item{flex:1; text-align:center;}
+  .summary .item .label{font-size:11px; color:#4C6B7A; letter-spacing:.04em;}
+  .summary .item .value{font-family:'Space Mono',monospace; font-weight:700; font-size:18px; margin-top:2px;}
+  .summary .item.time .value{color:var(--sky);}
+  .summary .item.cost .value{color:var(--coral-deep);}
+  .summary .divider{width:1px; background:var(--line);}
+
+  /* ===== Timeline / stops ===== */
+  .timeline{margin-top:16px; position:relative; padding-left:2px;}
+  .transport-row{display:flex; align-items:center; gap:8px; margin:10px 0 10px 6px; font-size:12px; color:#4C6B7A;}
+  .transport-row .icon{
+    width:26px;height:26px;border-radius:50%; background:var(--sky); color:#fff; display:flex;
+    align-items:center; justify-content:center; font-size:13px; flex:0 0 auto;
+  }
+  .transport-row.walk .icon{background:#8a9aa3;}
+  .transport-row.shuttle .icon{background:var(--gold); color:var(--ink);}
+  .transport-row .desc{flex:1; line-height:1.4;}
+  .transport-row .stat{display:flex; gap:4px; align-items:center; flex:0 0 auto;}
+  .transport-row input{
+    width:40px; border:none; border-bottom:1.5px dashed var(--line); background:transparent;
+    font-size:12px; text-align:right; color:var(--ink); font-weight:700; font-family:inherit;
+  }
+  .transport-row input:focus{outline:none; border-color:var(--coral);}
+  .transport-row .unit{font-size:10.5px; color:#8b8b90;}
+
+  .stop{
+    border:1.5px solid var(--ink); border-radius:var(--radius); background:#fff;
+    padding:12px 14px; margin-bottom:6px; box-shadow:var(--shadow); position:relative;
+  }
+  .stop::before{content:""; position:absolute; left:-2px; top:14px; bottom:14px; width:4px; border-radius:4px;}
+  .stop.type-spot::before{background:var(--lagoon);}
+  .stop.type-food::before{background:var(--coral);}
+  .stop.type-shop::before{background:var(--gold);}
+  .stop.type-stay::before{background:var(--ocean);}
+  .stop.type-drive::before{background:var(--sky);}
+  .stop.type-flight::before{background:var(--ink);}
+  .stop-head{display:flex; align-items:center; gap:10px; cursor:pointer; flex-wrap:wrap;}
+  .stop-time{
+    font-family:'Space Mono',monospace; font-weight:700; font-size:15px; color:var(--ink);
+    background:var(--paper2); border:2px solid var(--ink); border-radius:8px; padding:6px 8px; flex:0 0 auto;
+    min-width:56px; text-align:center; line-height:1.15;
+  }
+  .stop-tag{font-size:10px; letter-spacing:.04em; padding:2px 7px; border-radius:20px; flex:0 0 auto; font-weight:700;}
+  .type-spot .stop-tag{background:rgba(31,138,130,0.12); color:var(--lagoon-deep);}
+  .type-food .stop-tag{background:rgba(232,162,60,0.16); color:var(--coral-deep);}
+  .type-shop .stop-tag{background:rgba(217,164,65,0.18); color:#8a611b;}
+  .type-stay .stop-tag{background:rgba(11,79,108,0.12); color:var(--ocean);}
+  .type-drive .stop-tag{background:rgba(58,141,191,0.14); color:var(--sky);}
+  .type-flight .stop-tag{background:rgba(22,52,73,0.10); color:var(--ink);}
+  .stop-title{font-weight:700; font-size:15px; flex:1; line-height:1.3; min-width:120px;}
+  .stop-jp{font-size:11px; color:#8b8b90; width:100%; margin-left:66px;}
+  .stop-arrow{font-size:12px; color:#9a9a9f; transition:transform .2s ease; flex:0 0 auto;}
+  .stop.open .stop-arrow{transform:rotate(90deg);}
+  .stop-body{display:none; margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); font-size:13px; line-height:1.65; color:#3a3a3f;}
+  .stop.open .stop-body{display:block;}
+  .stop-body .note-label{font-size:10.5px; color:var(--lagoon-deep); font-weight:700; letter-spacing:.04em; margin-bottom:3px;}
+  .contact-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+  .contact-row a{
+    font-size:12px; text-decoration:none; color:var(--sky); background:var(--paper2);
+    padding:5px 10px; border-radius:20px; border:1px solid var(--line); display:inline-flex; gap:5px; align-items:center;
+  }
+  .contact-row a.tel{color:var(--coral-deep);}
+  .contact-row a.map{color:var(--lagoon-deep); border-color:rgba(31,138,130,0.35); background:rgba(31,138,130,0.08);}
+  .del-stop{
+    display:none; margin-top:10px; font-size:11.5px; color:var(--coral-deep); background:none; border:1px solid var(--coral-deep);
+    border-radius:20px; padding:4px 10px; font-family:inherit; cursor:pointer;
+  }
+  body.editing .del-stop{display:inline-block;}
+  body.editing .stop{border-color:var(--coral-deep);}
+  .add-stop-btn{
+    width:100%; margin-top:8px; padding:12px; border-radius:var(--radius); border:2px dashed var(--ink);
+    background:transparent; color:var(--ink); font-weight:700; font-size:13px; font-family:inherit; cursor:pointer;
+    display:none;
+  }
+  body.editing .add-stop-btn{display:block;}
+
+  /* ===== Flight tickets ===== */
+  .flight-card{
+    border:1.5px solid var(--ink); border-radius:var(--radius); background:#fff;
+    padding:14px; margin-bottom:14px; box-shadow:var(--shadow); position:relative; width:100%; box-sizing:border-box;
+  }
+  .flight-card::before{content:""; position:absolute; left:-2px; top:0; bottom:0; width:5px;}
+  .flight-card.outbound::before{background:var(--lagoon);}
+  .flight-card.inbound::before{background:var(--coral);}
+  .flight-card .flight-head{display:flex; align-items:center; gap:8px; margin-bottom:12px;}
+  .flight-card .flight-head .plane{font-size:18px;}
+  .flight-card .flight-head h3{font-size:15px; font-weight:600;}
+  .flight-card .flight-head .badge{margin-left:auto; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px;}
+  .flight-card.outbound .badge{background:rgba(31,138,130,0.12); color:var(--lagoon-deep);}
+  .flight-card.inbound .badge{background:rgba(232,162,60,0.16); color:var(--coral-deep);}
+  .flight-route{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+  .flight-route input.city{
+    flex:1; min-width:0; width:100%; box-sizing:border-box;
+    border:1.5px solid var(--line); border-radius:8px; padding:8px 6px; font-family:inherit;
+    font-size:12.5px; font-weight:700; text-align:center; color:var(--ink);
+  }
+  .flight-route .arrow{color:#9a9a9f; font-size:16px; flex:0 0 auto;}
+  .flight-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; width:100%;}
+  .flight-grid .field{display:flex; flex-direction:column; gap:4px; min-width:0;}
+  .flight-grid .field.full{grid-column:1 / -1;}
+  .flight-grid label{font-size:10.5px; color:#8b8b90; letter-spacing:.04em; font-weight:700;}
+  .flight-grid input{
+    width:100%; min-width:0; box-sizing:border-box;
+    border:1.5px solid var(--line); border-radius:8px; padding:9px 8px; font-family:inherit;
+    font-size:13px; color:var(--ink); background:var(--paper);
+  }
+  .flight-grid input:focus{outline:none; border-color:var(--gold);}
+  .flight-grid input:disabled, .flight-route input:disabled{
+    opacity:1; -webkit-text-fill-color:var(--ink); color:var(--ink); cursor:default; background:var(--paper2);
+  }
+  body.editing .flight-grid input:not(:disabled), body.editing .flight-route input:not(:disabled){
+    border-color:var(--gold); background:#FFFDF7;
+  }
+  @media(max-width:400px){.flight-grid{grid-template-columns:1fr 1fr;} .flight-grid .field:nth-child(3){grid-column:1/-1;}}
+
+  .info-card{
+    background:#fff; border-radius:var(--radius); padding:14px 16px; box-shadow:var(--shadow);
+    border-left:5px solid var(--sky); margin-bottom:12px; font-size:13px; line-height:1.7;
+  }
+  .info-card h3{font-size:15px; margin-bottom:4px; color:var(--ocean);}
+  .info-card p{margin:2px 0; color:#4C6B7A;}
+
+  /* ===== Split / expense tracker ===== */
+  .split-section{margin-bottom:20px;}
+  .split-section h3{font-size:15px; color:var(--coral-deep); border-bottom:2px solid var(--coral-deep); display:inline-block; padding-bottom:2px; margin-bottom:10px;}
+  .member-chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;}
+  .member-chip{
+    display:flex; align-items:center; gap:6px; background:var(--paper2); border:1.5px solid var(--ink);
+    border-radius:20px; padding:6px 8px 6px 12px; font-size:13px; font-weight:700;
+  }
+  .member-chip button{
+    border:none; background:var(--coral); color:#fff; width:18px; height:18px; border-radius:50%;
+    font-size:11px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  .add-row{display:flex; gap:8px;}
+  .add-row input{flex:1; min-width:0; border:1.5px solid var(--line); border-radius:8px; padding:9px 10px; font-family:inherit; font-size:13px; box-sizing:border-box;}
+  .add-row button{border:none; background:var(--ink); color:#fff; border-radius:8px; padding:0 14px; font-weight:700; font-family:inherit; flex:0 0 auto;}
+
+  .expense-form{border:1.5px solid var(--ink); border-radius:var(--radius); padding:14px; background:#fff; box-shadow:var(--shadow); margin-bottom:16px;}
+  .expense-form .row{margin-bottom:10px;}
+  .expense-form label{font-size:10.5px; color:#8b8b90; font-weight:700; letter-spacing:.03em; display:block; margin-bottom:4px;}
+  .expense-form input[type=text], .expense-form input[type=number], .expense-form select{
+    width:100%; box-sizing:border-box; border:1.5px solid var(--line); border-radius:8px; padding:9px 10px;
+    font-family:inherit; font-size:13.5px; background:var(--paper); color:var(--ink);
+  }
+  .split-checks{display:flex; flex-wrap:wrap; gap:8px;}
+  .split-check{display:flex; align-items:center; gap:5px; background:var(--paper2); border:1px solid var(--line); border-radius:20px; padding:5px 10px; font-size:12.5px;}
+  .split-check input{width:15px; height:15px; accent-color:var(--lagoon);}
+  .split-quick{font-size:11px; color:var(--sky); text-decoration:underline; margin-left:auto; cursor:pointer; background:none; border:none; font-family:inherit;}
+  .expense-form .submit-btn{
+    width:100%; padding:12px; border:none; border-radius:10px; background:var(--coral); color:#fff;
+    font-weight:700; font-size:14px; font-family:inherit; cursor:pointer; margin-top:4px;
+  }
+
+  .expense-item{border:1.5px solid var(--line); border-radius:var(--radius); padding:12px 14px 10px; margin-bottom:8px; background:#fff;}
+  .expense-item .top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .expense-item .desc{font-weight:700; font-size:14px;}
+  .expense-item .amount{font-family:'Space Mono',monospace; font-weight:700; font-size:16px; color:var(--coral-deep); flex:0 0 auto;}
+  .expense-item .meta{font-size:11.5px; color:#8b8b90; margin-top:5px; line-height:1.6;}
+  .expense-item .item-actions{display:flex; gap:8px; margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);}
+  .expense-item .item-actions button{
+    flex:1; border:1px solid var(--line); border-radius:8px; padding:7px; background:transparent;
+    color:var(--coral-deep); font-weight:700; font-size:12px; font-family:inherit; cursor:pointer;
+  }
+  .cat-tag{
+    display:inline-block; font-size:10.5px; font-weight:700; background:var(--paper2); color:var(--ink);
+    border-radius:20px; padding:2px 8px; margin-right:6px; border:1px solid var(--line);
+  }
+  .toggle-list-btn{
+    width:100%; padding:9px; border-radius:10px; border:1.5px dashed var(--sky); background:rgba(58,141,191,0.06);
+    color:var(--sky); font-family:inherit; font-size:11.5px; font-weight:700; cursor:pointer;
+  }
+  .empty-hint{color:#8b8b90; font-size:13px; text-align:center; padding:18px;}
+
+  .summary-card{
+    border:1.5px solid var(--ink); border-radius:var(--radius); background:#fff; padding:12px 14px;
+    box-shadow:var(--shadow); margin-bottom:12px;
+  }
+  .total-row{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed var(--line);}
+  .total-row .label{font-size:13px; color:#4C6B7A; font-weight:700;}
+  .total-row .value{font-family:'Space Mono',monospace; font-weight:700; font-size:16px; color:var(--ink);}
+  .deposit-col-labels{display:flex; align-items:center; justify-content:flex-end; padding-bottom:4px; border-bottom:1px dashed var(--line); margin-bottom:2px;}
+  .deposit-col-labels .col-label-group{display:flex; gap:6px;}
+  .deposit-col-labels .col-label{font-size:9.5px; color:#8b8b90; font-weight:700; text-align:center;}
+  .deposit-col-labels .col-label:nth-child(1){width:52px;}
+  .deposit-col-labels .col-label:nth-child(2){width:90px;}
+  .deposit-row{display:flex; align-items:center; justify-content:space-between; padding:6px 0; gap:10px;}
+  .deposit-row .name{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:4px;}
+  .head-badge{font-size:10.5px; font-weight:700; color:var(--lagoon-deep); background:rgba(31,138,130,0.1); border-radius:20px; padding:2px 7px;}
+  .deposit-inputs{display:flex; align-items:center; gap:6px;}
+  .deposit-inputs input{
+    box-sizing:border-box; border:1.5px solid var(--line); border-radius:8px; padding:7px 8px;
+    font-family:inherit; font-size:13px; text-align:right; background:#fff;
+  }
+  .deposit-inputs .head-input{width:52px;}
+  .deposit-inputs .deposit-input{width:90px;}
+  .balance-row{display:flex; justify-content:space-between; align-items:center; padding:7px 0; font-size:13.5px; border-bottom:1px dashed var(--line);}
+  .balance-row:last-child{border-bottom:none;}
+  .balance-row .amt{font-family:'Space Mono',monospace; font-weight:700;}
+  .balance-row .amt.positive{color:var(--lagoon-deep);}
+  .balance-row .amt.negative{color:var(--coral-deep);}
+  .balance-row .amt.zero{color:#8b8b90;}
+  .settle-item{
+    display:flex; align-items:center; gap:8px; font-size:13.5px; background:#fff; border:1.5px solid var(--line);
+    border-radius:12px; padding:10px 12px; margin-bottom:8px; box-shadow:var(--shadow);
+  }
+  .settle-item b.to{color:var(--coral-deep);}
+  .cat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px;}
+  .cat-card{border:1.5px solid var(--line); border-radius:12px; padding:10px; text-align:center; background:#fff;}
+  .cat-card.has-amt{border-color:var(--gold); background:#FFFCF4;}
+  .cat-label{display:block; font-size:12px; color:#4C6B7A;}
+  .cat-amt{display:block; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; margin-top:3px;}
+  .quick-jump{display:flex; gap:10px; margin:4px 0 18px; font-size:12px;}
+  .quick-jump a{color:var(--sky); text-decoration:none; border-bottom:1px dashed var(--sky);}
+  .local-note{
+    font-size:11.5px; color:#4C6B7A; background:var(--paper2); border:1px solid var(--line);
+    border-radius:10px; padding:8px 12px; margin:8px 0 16px;
+  }
+  .export-card{
+    display:inline-flex; align-items:center; gap:6px; margin:0 0 18px;
+    padding:6px 12px; border-radius:20px; border:1.5px solid var(--lagoon);
+    background:rgba(31,138,130,0.08); color:var(--lagoon-deep); cursor:pointer; font-family:inherit;
+  }
+  .export-card:active{background:rgba(31,138,130,0.18);}
+
+  /* ===== Edit FAB ===== */
+  .fab{
+    position:fixed; right:16px; bottom:calc(100px + env(safe-area-inset-bottom)); z-index:60;
+    width:56px; height:56px; border-radius:50%; background:var(--ocean); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:22px; border:none;
+    box-shadow:0 8px 20px rgba(11,79,108,0.35); cursor:pointer;
+  }
+  .fab.on{background:var(--coral);}
+  .edit-banner{
+    display:none; margin:14px 14px 0; padding:8px 12px; border-radius:10px;
+    background:var(--coral); color:#fff; font-size:12px; text-align:center; font-weight:700;
+  }
+  body.editing .edit-banner{display:block;}
+
+  footer{text-align:center; font-size:11px; color:#9a9a9f; padding:30px 20px 10px;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="eyebrow">OKINAWA · 6 DAYS 5 NIGHTS</div>
+  <h1>沖繩６日５夜・<span>海島慢旅</span></h1>
+  <p class="sub">臺中出發 × 浦添為家 × 青洞潛水・水族館・老街市場・深夜美食巡禮</p>
+  <div class="base-card">
+    <span>🏨</span>
+    <div><b>住宿基地：</b>D-and Stay. 5 Resort Okinawa（浦添市），Day1–Day6 共 5 晚皆以此為出發與回程點。</div>
+  </div>
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 40" preserveAspectRatio="none"><path fill="#FBF3E1" d="M0,20 C240,40 480,0 720,15 C960,30 1200,5 1440,20 L1440,40 L0,40 Z"></path></svg>
+  </div>
+</div>
+
+<div class="tabbar" id="tabbar"></div>
+<div class="edit-banner">✏️ 編輯模式已開啟：點文字旁的「✎」按鈕可修改內容，也能新增／刪除行程。所有變更只會存在這個瀏覽器裡。</div>
+
+<div id="panels"></div>
+
+<button class="fab" id="fab" title="編輯行程">✎</button>
+
+<footer>行程與費用皆為預估值，實際交通時間會依租車路況浮動，出發前建議再用地圖 App 確認一次。願旅途像潮水一樣，慢慢來，剛剛好。🌊</footer>
+
+<script>
+/* ---------------- 本機儲存 ---------------- */
+function loadLocal(key, fallback){
+  try{ const raw = localStorage.getItem(key); if(raw) return JSON.parse(raw); }catch(e){}
+  return fallback;
+}
+function saveLocal(key, data){ try{ localStorage.setItem(key, JSON.stringify(data)); }catch(e){} }
+
+/* ---------------- 行程資料 ---------------- */
+const defaultTripData = {
+  contentVersion: 1,
+  days: [
+    { id:'d1', num:'壹', label:'DAY 1', title:'抵達沖繩・美國村夜遊', note:'那霸機場入境．取車入住．美國村．深夜糸滿漁港',
+      stops:[
+        {time:'11:10', type:'flight', tag:'出發', title:'臺中清泉崗機場', coords:{lat:24.2646,lng:120.6197}, transport:{mode:'walk', from:'', min:0, cost:0},
+          note:'台灣中部唯一聯外機場，於此辦理登機手續，準備飛往沖繩。停留約 2 小時。', address:'台灣 436 台中市清水區', phone:'+886426155000'},
+        {time:'15:45', type:'flight', tag:'抵達', title:'那霸機場', coords:{lat:26.1958,lng:127.6458}, jp:'那覇空港', transport:{mode:'walk', from:'臺中清泉崗機場（飛行約1小時35分）', min:0, cost:0},
+          note:'沖繩地區最主要的航空樞紐，設有觀景台可欣賞飛機起降，是探索沖繩的起點。停留約 1 小時。', address:'150 Kagamizu, Naha, Okinawa', phone:'+81988401151'},
+        {time:'16:54', type:'drive', tag:'租車', title:'Good Speed Rent a Car', coords:{lat:26.1928,lng:127.6624}, jp:'グッドスピードレンタカー 那覇空港前店', transport:{mode:'shuttle', from:'那霸機場', min:9, cost:0},
+          note:'辦理租車手續，展開六天的自駕環島小旅行。停留約 1 小時。', address:'Naha, Akamine 2-11-15', phone:'+81988528811'},
+        {time:'18:23', type:'stay', tag:'入住', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'drive', from:'租車門市', min:29, cost:0},
+          note:'Check-in 放下行李，作為後續五晚的住宿基地。停留約 1 小時。', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'},
+        {time:'19:50', type:'spot', tag:'景點', title:'美國村', coords:{lat:26.3153,lng:127.7558}, jp:'アメリカンビレッジ', transport:{mode:'drive', from:'飯店', min:27, cost:0},
+          note:'充滿美式風情的休閒娛樂區，摩天輪與異國建築林立，晚上依然熱鬧，適合逛街拍照配晚餐。停留約 3 小時。', address:'北谷町美濱 8-7'},
+        {time:'23:24', type:'food', tag:'宵夜', title:'沖繩居酒屋昭和村', coords:{lat:26.214,lng:127.689}, jp:'沖縄居酒屋 昭和村 平和通り店', transport:{mode:'drive', from:'美國村', min:34, cost:0},
+          note:'道地沖繩居酒屋，深夜小酌配沖繩家常菜。停留約 1 小時。', address:'那覇市牧志 3-1-20', phone:'+81988660106'},
+        {time:'00:44', type:'stay', tag:'回飯店（隔日凌晨）', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'drive', from:'居酒屋', min:20, cost:0},
+          note:'短暫回飯店整理，準備繼續深夜行程。停留約 1 小時。', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'},
+        {time:'01:47', type:'shop', tag:'深夜超市', title:'AEON STYLE Tedako Uranishi', coords:{lat:26.238,lng:127.742}, jp:'イオンスタイル てだこ浦西駅前', transport:{mode:'drive', from:'飯店', min:3, cost:0},
+          note:'深夜逛超市採買零食伴手禮。停留約 1 小時。', address:'3-19-40 Maeda, Urasoe', phone:'+81988705171'},
+        {time:'03:14', type:'spot', tag:'夜景', title:'瀨長島海風露台', coords:{lat:26.1839,lng:127.6459}, jp:'瀬長島 ウミカジテラス', transport:{mode:'drive', from:'AEON', min:27, cost:0},
+          note:'白色地中海風建築群，面海而建，適合夜晚吹風、靜待天光漸亮。停留約 1 小時。', address:'Tomigusuku, Senaga 174-6', phone:'+81988517446'},
+        {time:'04:25', type:'shop', tag:'市場', title:'糸滿魚市場', coords:{lat:26.1245,lng:127.6688}, jp:'糸満漁業協同組合 お魚センター', transport:{mode:'drive', from:'瀨長島', min:11, cost:0},
+          note:'清晨魚市場最鮮活的時刻，逛逛在地漁獲。停留約 1 小時。', address:'Itoman, Nishizakicho 4-19', phone:'+81989922803'},
+        {time:'05:27', type:'food', tag:'早餐', title:'糸滿漁民食堂', coords:{lat:26.124,lng:127.669}, transport:{mode:'walk', from:'糸滿魚市場', min:2, cost:0},
+          note:'以新鮮漁獲入菜的在地食堂，用一碗海鮮丼為第一天畫下句點。停留約 1 小時。', address:'Itoman, Nishizakicho 4-17-7', phone:'+81989927277'}
+      ]
+    },
+    { id:'d2', num:'貳', label:'DAY 2', title:'青之洞窟・恩納村之旅', note:'青洞浮潛．座喜味城跡．唐吉訶德掃貨',
+      stops:[
+        {time:'09:20', type:'stay', tag:'出發', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'walk', from:'', min:0, cost:0}, note:'', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'},
+        {time:'10:00', type:'spot', tag:'潛水體驗', title:'沖繩藍 OkinawaBlue', coords:{lat:26.503,lng:127.944}, jp:'青之洞窟浮潛・潛水體驗', transport:{mode:'drive', from:'飯店', min:40, cost:0},
+          note:'沖繩最具代表性的浮潛景點，湛藍洞窟光影是這趟旅程最夢幻的一段回憶。停留約 2.5 小時。', address:'Maeda 2723-2, Onna', phone:'+817042111680'},
+        {time:'12:42', type:'food', tag:'午餐', title:'Ryukyu No Ushi', coords:{lat:26.4949,lng:127.8298}, jp:'焼肉 琉球の牛 恩納本館', transport:{mode:'drive', from:'青之洞窟', min:12, cost:0},
+          note:'潛水後補充體力，來一頓道地沖繩燒肉。停留約 1 小時。', address:'909-2 Maeganeku, Onna', phone:'+81989652233'},
+        {time:'13:43', type:'food', tag:'小吃', title:'Shimabutaya Maeganeku', coords:{lat:26.4945,lng:127.8295}, jp:'沖縄とんかつ食堂しまぶた屋 前兼久店', transport:{mode:'walk', from:'燒肉店', min:1, cost:0},
+          note:'沖繩豬肉專門店，續攤淺嚐在地炸豬排。停留約 1 小時。', address:'96-1 Maeganeku, Onna', phone:'+81989231518'},
+        {time:'15:00', type:'spot', tag:'史跡', title:'座喜味城跡', coords:{lat:26.4058,lng:127.7379}, jp:'国指定史跡 座喜味城跡', transport:{mode:'drive', from:'とんかつ食堂', min:17, cost:0},
+          note:'國家指定史跡，登上城牆可眺望讀谷村的田園與海景。停留約 40 分鐘。', address:'讀谷村座喜味 708'},
+        {time:'16:14', type:'shop', tag:'購物', title:'MEGA唐吉訶德 宜野灣店', coords:{lat:26.2746,lng:127.7469}, jp:'MEGAドン・キホーテ 宜野湾店', transport:{mode:'drive', from:'座喜味城跡', min:34, cost:0},
+          note:'藥妝、零食、生活雜貨一次掃貨。停留約 1 小時。', address:'7-7-12 Oyama, Ginowan', phone:'+81570050201'},
+        {time:'17:34', type:'stay', tag:'返回', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'drive', from:'唐吉訶德', min:20, cost:0},
+          note:'結束充實的一天，回飯店休息。停留約 1 小時。', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'}
+      ]
+    },
+    { id:'d3', num:'參', label:'DAY 3', title:'美麗海水族館・瀬底海灘', note:'北上本部町，世界級水族館與透明系海灘',
+      stops:[
+        {time:'09:30', type:'stay', tag:'出發', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'walk', from:'', min:0, cost:0}, note:'', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'},
+        {time:'10:52', type:'spot', tag:'景點', title:'沖繩美麗海水族館', coords:{lat:26.6941,lng:127.8779}, jp:'沖縄美ら海水族館', transport:{mode:'drive', from:'飯店', min:82, cost:0},
+          note:'位於海洋博公園內，以巨大鯨鯊水槽聞名的沖繩地標級景點。停留約 1 小時。', address:'本部町石川 424', phone:'+81980483748'},
+        {time:'12:13', type:'spot', tag:'海灘', title:'Sesoko Beach', coords:{lat:26.6469,lng:127.8564}, jp:'瀬底ビーチ', transport:{mode:'drive', from:'水族館', min:21, cost:0},
+          note:'沖繩少數以水質透明度聞名的離島海灘，適合放空戲水。停留約 1 小時。', address:'5583-1 Sesoko, Motobu', phone:'+81980472368'},
+        {time:'14:34', type:'stay', tag:'返回', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'drive', from:'瀬底ビーチ', min:81, cost:0},
+          note:'南下返回飯店，結束北部一日行。停留約 1 小時。', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'}
+      ]
+    },
+    { id:'d4', num:'肆', label:'DAY 4', title:'浦添慢活日', note:'放慢腳步，只安排一碗在地沖繩麵',
+      stops:[
+        {time:'08:00', type:'stay', tag:'出發', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'walk', from:'', min:0, cost:0}, note:'悠閒享用早晨時光，不趕行程的一天。停留約 1 小時。', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'},
+        {time:'09:29', type:'food', tag:'早餐', title:'浜屋沖繩麵', coords:{lat:26.3122,lng:127.759}, transport:{mode:'drive', from:'飯店', min:30, cost:0},
+          note:'在地人氣沖繩麵老店，湯頭清爽、麵條Q彈。停留約 1 小時。', address:'北谷町宮城 2-99', phone:'+81989365929'},
+        {time:'10:59', type:'stay', tag:'返回', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'drive', from:'浜屋', min:30, cost:0},
+          note:'回飯店休息、游泳或自由活動，養精蓄銳準備最後兩天。停留約 1 小時。', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'}
+      ]
+    },
+    { id:'d5', num:'伍', label:'DAY 5', title:'那霸市區・國際通', note:'海鮮直售市場一路逛到最熱鬧的國際通商店街',
+      stops:[
+        {time:'08:00', type:'stay', tag:'出發', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'walk', from:'', min:0, cost:0}, note:'', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'},
+        {time:'09:32', type:'shop', tag:'市場', title:'Payao Market', coords:{lat:26.3389,lng:127.8194}, jp:'沖縄市漁業協同組合パヤオ直売店', transport:{mode:'drive', from:'飯店', min:32, cost:0},
+          note:'在地漁協直營的海鮮直售所，選購新鮮漁獲。停留約 1 小時。', address:'1-11-34 Awase, Okinawa City', phone:'+81989385811'},
+        {time:'11:12', type:'shop', tag:'景點街', title:'國際通商店街', coords:{lat:26.2124,lng:127.6892}, jp:'那覇国際通り', transport:{mode:'drive', from:'Payao Market', min:40, cost:0},
+          note:'全長約1.6公里的那霸第一商店街，店鋪、餐廳、伴手禮應有盡有，是感受沖繩文化的必訪之地。停留約 1 小時。', address:'那覇市牧志 3-2-10', phone:'+81988632755'},
+        {time:'12:16', type:'food', tag:'午餐', title:'ちゅらさん6沖縄', coords:{lat:26.2183,lng:127.679}, transport:{mode:'drive', from:'國際通', min:4, cost:0},
+          note:'午餐選擇，補充逛街消耗的體力。停留約 1 小時。', address:'那覇市松山 1-5-1', phone:'+81988601234'},
+        {time:'13:37', type:'stay', tag:'返回', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'drive', from:'午餐地點', min:21, cost:0},
+          note:'回飯店整理戰利品，準備最後一天賦歸。停留約 1 小時。', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'}
+      ]
+    },
+    { id:'d6', num:'陸', label:'DAY 6', title:'最後採購・賦歸台灣', note:'退房後最後採購，還車後飛回臺中',
+      stops:[
+        {time:'14:28', type:'stay', tag:'退房', title:'D-and Stay. 5 Resort Okinawa', coords:{lat:26.2427,lng:127.7213}, transport:{mode:'walk', from:'', min:0, cost:0},
+          note:'辦理退房，收拾行李準備踏上歸途。停留約 1 小時。', address:'2-14-8 Maeda, Urasoe, Okinawa', phone:'+81989175628'},
+        {time:'15:48', type:'shop', tag:'購物', title:'PARCO CITY', coords:{lat:26.2472,lng:127.7194}, jp:'サンエー 浦添西海岸パルコシティ', transport:{mode:'drive', from:'飯店', min:20, cost:0},
+          note:'沖繩最大級購物中心，回國前最後採購伴手禮的好地方。停留約 1 小時。', address:'3-1-1 Irijima, Urasoe', phone:'+81988711120'},
+        {time:'17:07', type:'drive', tag:'還車', title:'Good Speed Rent a Car', coords:{lat:26.1928,lng:127.6624}, jp:'グッドスピードレンタカー 那覇空港前店', transport:{mode:'drive', from:'PARCO CITY', min:19, cost:0},
+          note:'歸還租賃車輛，結束六天的自駕行程。停留約 1 小時。', address:'Naha, Akamine 2-11-15', phone:'+81988528811'},
+        {time:'18:10', type:'flight', tag:'登機', title:'那霸機場', coords:{lat:26.1958,lng:127.6458}, jp:'那覇空港', transport:{mode:'shuttle', from:'租車門市', min:3, cost:0},
+          note:'辦理登機手續與退稅，準備飛回臺灣。停留約 2 小時。', address:'150 Kagamizu, Naha, Okinawa', phone:'+81988401151'},
+        {time:'20:50', type:'flight', tag:'抵達', title:'臺中清泉崗機場', coords:{lat:24.2646,lng:120.6197}, transport:{mode:'walk', from:'那霸機場（飛行約1小時40分）', min:0, cost:0},
+          note:'平安降落臺中，六天五夜的沖繩海島慢旅正式結束。停留約 1 小時。', address:'台灣 436 台中市清水區', phone:'+886426155000'}
+      ]
+    }
+  ]
+};
+let tripData = JSON.parse(JSON.stringify(loadLocal('okinawaTripData', defaultTripData)));
+
+const flightData = loadLocal('okinawaFlightData', {
+  outbound:{ date:'', checkin:'11:10', depTime:'13:10', arrTime:'15:45', from:'臺中清泉崗機場 RMQ', to:'那霸機場 OKA', flight:'' },
+  inbound:{ date:'', checkin:'18:10', depTime:'20:10', arrTime:'21:50', from:'那霸機場 OKA', to:'臺中清泉崗機場 RMQ', flight:'' }
+});
+function pushTripData(){ saveLocal('okinawaTripData', tripData); }
+function pushFlightData(){ saveLocal('okinawaFlightData', flightData); }
+
+/* ---------------- 交通方式 ---------------- */
+const transportMeta = {
+  drive:{icon:'🚗', label:'自駕', cls:'drive'},
+  walk:{icon:'🚶', label:'步行', cls:'walk'},
+  shuttle:{icon:'🚌', label:'接駁', cls:'shuttle'}
+};
+const typeTagLabel = {spot:'景點', food:'美食', shop:'購物', stay:'住宿', drive:'租車', flight:'機場'};
+
+/* ---------------- 自動估算路程（依地圖座標，直線距離概算） ---------------- */
+const HOTEL_COORDS = {lat:26.2427, lng:127.7213}; // D-and Stay. 5 Resort Okinawa
+
+function haversineKm(a, b){
+  if(!a || !b) return null;
+  const R = 6371;
+  const dLat = (b.lat-a.lat)*Math.PI/180;
+  const dLng = (b.lng-a.lng)*Math.PI/180;
+  const lat1 = a.lat*Math.PI/180, lat2 = b.lat*Math.PI/180;
+  const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1-h));
+}
+function estimateDriveMinutes(straightKm){
+  const roadKm = straightKm * 1.35; // 概估市區道路繞行係數
+  const speed = roadKm>15 ? 45 : (roadKm>6 ? 32 : 22); // 概估平均時速（含號誌、市區路況）
+  return Math.max(5, Math.round(roadKm/speed*60) + 3);
+}
+// 依照目前的行程順序與座標，自動重新估算每一段「自駕」交通時間（找不到座標的行程會維持原樣）
+function autoRecalcDay(day){
+  let prevCoords = HOTEL_COORDS;
+  day.stops.forEach(stop=>{
+    if(stop.transport && stop.transport.mode==='drive' && stop.coords && prevCoords){
+      const km = haversineKm(prevCoords, stop.coords);
+      if(km!=null) stop.transport.min = estimateDriveMinutes(km);
+    }
+    if(stop.coords) prevCoords = stop.coords;
+  });
+}
+
+/* ---------------- 航班卡 ---------------- */
+function renderFlightCard(key, label, cls){
+  const f = flightData[key];
+  return `
+    <div class="flight-card ${cls}">
+      <div class="flight-head">
+        <span class="plane">✈️</span>
+        <h3>${label}</h3>
+        <span class="badge">${cls==='outbound'?'去程':'回程'}</span>
+      </div>
+      <div class="flight-route">
+        <input class="city" disabled data-flight="${key}" data-field="from" value="${f.from}">
+        <span class="arrow">→</span>
+        <input class="city" disabled data-flight="${key}" data-field="to" value="${f.to}">
+      </div>
+      <div class="flight-grid">
+        <div class="field"><label>報到時間</label><input type="time" disabled data-flight="${key}" data-field="checkin" value="${f.checkin}"></div>
+        <div class="field"><label>起飛時間</label><input type="time" disabled data-flight="${key}" data-field="depTime" value="${f.depTime}"></div>
+        <div class="field"><label>抵達時間</label><input type="time" disabled data-flight="${key}" data-field="arrTime" value="${f.arrTime}"></div>
+        <div class="field full"><label>日期</label><input type="date" disabled data-flight="${key}" data-field="date" value="${f.date}"></div>
+        <div class="field full"><label>航空公司／航班號</label><input type="text" disabled data-flight="${key}" data-field="flight" placeholder="尚未確定，訂票後再填入" value="${f.flight}"></div>
+      </div>
+    </div>
+  `;
+}
+function applyFlightInputsLock(){
+  const editing = document.body.classList.contains('editing');
+  document.querySelectorAll('#panel-flight input').forEach(el=> el.disabled = !editing);
+}
+function bindFlightInputs(){
+  document.querySelectorAll('[data-flight]').forEach(input=>{
+    input.addEventListener('input', ()=>{
+      flightData[input.dataset.flight][input.dataset.field] = input.value;
+      pushFlightData();
+    });
+  });
+  applyFlightInputsLock();
+}
+
+/* ---------------- Render 主流程 ---------------- */
+const tabbar = document.getElementById('tabbar');
+const panelsRoot = document.getElementById('panels');
+
+function render(){
+  tabbar.innerHTML=''; panelsRoot.innerHTML='';
+
+  const flightTab = document.createElement('div');
+  flightTab.className='tab active';
+  flightTab.dataset.target='flight';
+  flightTab.innerHTML=`<div class="num">✈️</div><div class="cn">航班</div>`;
+  flightTab.onclick=()=>switchPanel('flight');
+  tabbar.appendChild(flightTab);
+
+  const flightPanel = document.createElement('div');
+  flightPanel.className='panel active';
+  flightPanel.id='panel-flight';
+  flightPanel.innerHTML = `
+    <div class="day-title"><div><h2>航班資訊</h2><div class="day-note">臺中清泉崗 ⇄ 那霸，時間依行程表估算。點右下角✎進入編輯模式即可修改航空公司與班號</div></div></div>
+    ${renderFlightCard('outbound','去程 · 臺中→那霸','outbound')}
+    ${renderFlightCard('inbound','回程 · 那霸→臺中','inbound')}
+    <div class="info-card"><h3>🚗 租車</h3><p><b>Good Speed Rent a Car</b>（那覇空港前店）</p><p>取車：Day1 16:54　還車：Day6 17:07</p></div>
+    <div class="info-card"><h3>🏨 住宿</h3><p><b>D-and Stay. 5 Resort Okinawa</b></p><p>2-14-8 Maeda, Urasoe, Okinawa　共 5 晚</p></div>
+  `;
+  panelsRoot.appendChild(flightPanel);
+
+  tripData.days.forEach((day)=>{
+    const tab = document.createElement('div');
+    tab.className='tab';
+    tab.dataset.target=day.id;
+    tab.innerHTML=`<div class="num">${day.num}</div><div class="cn">${day.label}</div>`;
+    tab.onclick=()=>switchPanel(day.id);
+    tabbar.appendChild(tab);
+
+    const panel = document.createElement('div');
+    panel.className='panel';
+    panel.id='panel-'+day.id;
+    panel.innerHTML = `
+      <div class="day-title">
+        <div>
+          <span><h2 id="dayTitleText-${day.id}">${day.title}</h2><button type="button" class="field-edit-btn" data-edit-day-title="${day.id}">✎ 編輯標題</button></span>
+          <div style="display:flex; align-items:flex-start; gap:2px;">
+            <div class="day-note" id="dayNoteText-${day.id}">${day.note}</div>
+            <button type="button" class="field-edit-btn" data-edit-day-note="${day.id}">✎ 編輯說明</button>
+          </div>
+        </div>
+      </div>
+      <div class="summary" data-summary="${day.id}">
+        <div class="item time"><div class="label">自駕交通時間</div><div class="value" data-sum-time>0 分</div></div>
+        <div class="divider"></div>
+        <div class="item cost"><div class="label">交通花費</div><div class="value" data-sum-cost>¥0</div></div>
+      </div>
+      <div class="day-note" style="margin:6px 2px 0;">📍 每個行程都已連結 Google 地圖；新增或刪除行程後，同一天的自駕時間會自動依地圖座標重新估算（直線距離概算，僅供參考）。</div>
+      <div class="timeline" data-day="${day.id}"></div>
+      <button class="add-stop-btn" data-day="${day.id}">＋ 新增一個行程</button>
+    `;
+    panelsRoot.appendChild(panel);
+
+    const timeline = panel.querySelector('.timeline');
+    day.stops.forEach((stop, sIdx)=> timeline.appendChild(renderStop(day, stop, sIdx)));
+
+    panel.querySelector(`[data-edit-day-title="${day.id}"]`).onclick=()=>{
+      const val = prompt('編輯這天的標題：', day.title);
+      if(val===null || val.trim()==='') return;
+      day.title = val.trim();
+      document.getElementById(`dayTitleText-${day.id}`).textContent = day.title;
+      pushTripData();
+    };
+    panel.querySelector(`[data-edit-day-note="${day.id}"]`).onclick=()=>{
+      const val = prompt('編輯這天的說明：', day.note);
+      if(val===null) return;
+      day.note = val;
+      document.getElementById(`dayNoteText-${day.id}`).textContent = day.note;
+      pushTripData();
+    };
+  });
+
+  const splitTab = document.createElement('div');
+  splitTab.className='tab util';
+  splitTab.dataset.target='split';
+  splitTab.innerHTML=`<div class="num">💰</div><div class="cn">分帳</div>`;
+  splitTab.onclick=()=>switchPanel('split');
+  tabbar.appendChild(splitTab);
+
+  const splitPanel = document.createElement('div');
+  splitPanel.className='panel';
+  splitPanel.id='panel-split';
+  panelsRoot.appendChild(splitPanel);
+  refreshSplitPanel();
+
+  document.querySelectorAll('.timeline').forEach(t=> updateSummary(t.dataset.day));
+
+  document.querySelectorAll('.add-stop-btn').forEach(btn=>{
+    btn.onclick=()=>{
+      const dayId = btn.dataset.day;
+      const day = tripData.days.find(d=>d.id===dayId);
+      const newStop = {time:'--:--', type:'spot', tag:'待編輯', title:'新的行程（點我編輯）',
+        transport:{mode:'drive', from:'', min:0, cost:0}, note:'點擊展開後可編輯說明文字。'};
+      day.stops.push(newStop);
+      autoRecalcDay(day);
+      const timeline = document.querySelector(`.timeline[data-day="${dayId}"]`);
+      timeline.innerHTML = '';
+      day.stops.forEach((s, idx2)=> timeline.appendChild(renderStop(day, s, idx2)));
+      updateSummary(dayId);
+      pushTripData();
+    };
+  });
+}
+
+function renderStop(day, stop, idx){
+  const wrap = document.createElement('div');
+
+  const meta = transportMeta[stop.transport.mode] || transportMeta.drive;
+  const tRow = document.createElement('div');
+  tRow.className = 'transport-row '+meta.cls;
+  tRow.innerHTML = `
+    <div class="icon">${meta.icon}</div>
+    <div class="desc">${meta.label}${stop.transport.from? '　'+stop.transport.from+' → '+stop.title : ''}</div>
+    <div class="stat">
+      <input type="number" min="0" value="${stop.transport.min}" data-role="min"><span class="unit">分</span>
+      <input type="number" min="0" value="${stop.transport.cost}" data-role="cost"><span class="unit">¥</span>
+    </div>
+  `;
+  const minInput = tRow.querySelector('[data-role="min"]');
+  const costInput = tRow.querySelector('[data-role="cost"]');
+  minInput.oninput=()=>{ stop.transport.min = Number(minInput.value)||0; updateSummary(day.id); };
+  costInput.oninput=()=>{ stop.transport.cost = Number(costInput.value)||0; updateSummary(day.id); };
+  minInput.addEventListener('blur', ()=> pushTripData());
+  costInput.addEventListener('blur', ()=> pushTripData());
+  wrap.appendChild(tRow);
+
+  const card = document.createElement('div');
+  card.className = 'stop type-'+stop.type;
+  const fieldKey = day.id + '-' + idx;
+  card.innerHTML = `
+    <div class="stop-head">
+      <div class="stop-time">${stop.time}</div>
+      <div class="stop-tag">${stop.tag || typeTagLabel[stop.type] || ''}</div>
+      <div class="stop-title" id="stopTitleText-${fieldKey}">${stop.title}</div>
+      <button type="button" class="field-edit-btn" data-edit-stop-title="${fieldKey}">✎</button>
+      <div class="stop-arrow">▶</div>
+      ${stop.jp? `<div class="stop-jp">${stop.jp}</div>`:''}
+    </div>
+    <div class="stop-body">
+      <div class="note-label">簡介／備註　<button type="button" class="field-edit-btn" data-edit-stop-note="${fieldKey}">✎ 編輯備註</button></div>
+      <div id="stopNoteText-${fieldKey}">${stop.note||''}</div>
+      <div class="contact-row">
+        ${stop.address?`<a class="map" target="_blank" href="https://www.google.com/maps/search/${encodeURIComponent(stop.address)}">📍 ${stop.address}</a>`:''}
+        ${stop.phone?`<a class="tel" href="tel:${stop.phone}">📞 ${stop.phone}</a>`:''}
+      </div>
+      <button class="del-stop">刪除此行程</button>
+    </div>
+  `;
+  const head = card.querySelector('.stop-head');
+  head.onclick=(e)=>{
+    if(e.target.closest('.field-edit-btn')) return;
+    card.classList.toggle('open');
+  };
+  card.querySelector(`[data-edit-stop-title="${fieldKey}"]`).onclick=(e)=>{
+    e.stopPropagation();
+    const val = prompt('編輯行程標題：', stop.title);
+    if(val===null || val.trim()==='') return;
+    stop.title = val.trim();
+    document.getElementById(`stopTitleText-${fieldKey}`).textContent = stop.title;
+    pushTripData();
+  };
+  card.querySelector(`[data-edit-stop-note="${fieldKey}"]`).onclick=(e)=>{
+    e.stopPropagation();
+    const val = prompt('編輯簡介／備註：', stop.note||'');
+    if(val===null) return;
+    stop.note = val;
+    document.getElementById(`stopNoteText-${fieldKey}`).textContent = stop.note;
+    pushTripData();
+  };
+  card.querySelector('.del-stop').onclick=(e)=>{
+    e.stopPropagation();
+    if(!confirm('確定要刪除這個行程嗎？刪除後這天的自駕交通時間會自動依地圖座標重新估算。')) return;
+    const i = day.stops.indexOf(stop);
+    if(i>-1) day.stops.splice(i,1);
+    autoRecalcDay(day);
+    const timeline = document.querySelector(`.timeline[data-day="${day.id}"]`);
+    timeline.innerHTML = '';
+    day.stops.forEach((s, idx2)=> timeline.appendChild(renderStop(day, s, idx2)));
+    updateSummary(day.id);
+    pushTripData();
+  };
+  wrap.appendChild(card);
+  return wrap;
+}
+
+function updateSummary(dayId){
+  const day = tripData.days.find(d=>d.id===dayId);
+  if(!day) return;
+  const totalMin = day.stops.reduce((s,st)=>s+(Number(st.transport.min)||0),0);
+  const totalCost = day.stops.reduce((s,st)=>s+(Number(st.transport.cost)||0),0);
+  const box = document.querySelector(`.summary[data-summary="${dayId}"]`);
+  if(!box) return;
+  const h = Math.floor(totalMin/60), m = totalMin%60;
+  box.querySelector('[data-sum-time]').textContent = h>0? `${h} 時 ${m} 分` : `${m} 分`;
+  box.querySelector('[data-sum-cost]').textContent = `¥${totalCost}`;
+}
+
+function switchPanel(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.target===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+id));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------------- 編輯模式（本機、無需密碼） ---------------- */
+const fab = document.getElementById('fab');
+fab.onclick=()=>{
+  const on = document.body.classList.toggle('editing');
+  fab.classList.toggle('on', on);
+  fab.textContent = on? '✓' : '✎';
+  applyFlightInputsLock();
+};
+
+/* ---------------- 分帳記帳 ---------------- */
+const expenseCategories = [
+  {key:'food', label:'餐飲', emoji:'🍜'},
+  {key:'stay', label:'住宿', emoji:'🏨'},
+  {key:'transport', label:'交通／租車', emoji:'🚗'},
+  {key:'ticket', label:'體驗門票', emoji:'🎟️'},
+  {key:'shop', label:'購物', emoji:'🛍️'},
+  {key:'other', label:'其他', emoji:'🧾'}
+];
+function catInfo(key){ return expenseCategories.find(c=>c.key===key) || expenseCategories[expenseCategories.length-1]; }
+
+const defaultSplitData = {
+  members: ['旅伴A', '旅伴B'],
+  lastDate: '',
+  expenses: []
+};
+let splitData = JSON.parse(JSON.stringify(loadLocal('okinawaSplitData', defaultSplitData)));
+function pushSplitData(){ saveLocal('okinawaSplitData', splitData); }
+
+function fmtMoney(n){ const sign = n<0?'-':''; return sign + '¥' + Math.abs(Math.round(n)); }
+function computeExpenseShares(exp){
+  const among = exp.splitAmong.filter(m=> splitData.members.includes(m));
+  const shares = {};
+  if(among.length<=0) return shares;
+  const perHead = exp.amount / among.length;
+  among.forEach(m=>{ shares[m] = perHead; });
+  return shares;
+}
+function computeBalances(){
+  const balance = {};
+  splitData.members.forEach(m=> balance[m] = 0);
+  splitData.expenses.forEach(exp=>{
+    const shares = computeExpenseShares(exp);
+    if(balance[exp.paidBy]!==undefined) balance[exp.paidBy] += exp.amount;
+    Object.keys(shares).forEach(m=>{ balance[m] -= shares[m]; });
+  });
+  return balance;
+}
+function computeCategoryTotals(){
+  const totals = {};
+  expenseCategories.forEach(c=> totals[c.key]=0);
+  splitData.expenses.forEach(exp=>{ totals[exp.category] = (totals[exp.category]||0) + exp.amount; });
+  return totals;
+}
+function computeSettlements(balance){
+  const creditors=[], debtors=[];
+  Object.keys(balance).forEach(m=>{
+    const v = Math.round(balance[m]*100)/100;
+    if(v>0.5) creditors.push({m, v});
+    else if(v<-0.5) debtors.push({m, v:-v});
+  });
+  creditors.sort((a,b)=>b.v-a.v);
+  debtors.sort((a,b)=>b.v-a.v);
+  const settlements=[]; let i=0,j=0;
+  while(i<debtors.length && j<creditors.length){
+    const pay = Math.min(debtors[i].v, creditors[j].v);
+    settlements.push({from:debtors[i].m, to:creditors[j].m, amount:pay});
+    debtors[i].v -= pay; creditors[j].v -= pay;
+    if(debtors[i].v<0.5) i++;
+    if(creditors[j].v<0.5) j++;
+  }
+  return settlements;
+}
+
+let showAllExpenses = false;
+
+function refreshSplitPanel(){
+  const panel = document.getElementById('panel-split');
+  if(!panel) return;
+
+  const memberChips = splitData.members.map(m=>
+    `<div class="member-chip">${m}<button data-remove-member="${m}">×</button></div>`
+  ).join('');
+
+  const payerOptions = splitData.members.map(m=>`<option value="${m}">${m}</option>`).join('');
+  const splitChecks = splitData.members.map(m=>
+    `<label class="split-check"><input type="checkbox" value="${m}" checked> ${m}</label>`
+  ).join('');
+  const categoryOptions = expenseCategories.map(c=>`<option value="${c.key}">${c.emoji} ${c.label}</option>`).join('');
+
+  const totalAmount = splitData.expenses.reduce((s,e)=>s+e.amount,0);
+  const balance = computeBalances();
+  const settlements = computeSettlements(balance);
+  const catTotals = computeCategoryTotals();
+  const catStatsHtml = expenseCategories.map(c=>{
+    const amt = catTotals[c.key]||0;
+    return `<div class="cat-card ${amt>0?'has-amt':''}"><span class="cat-label">${c.emoji} ${c.label}</span><span class="cat-amt">${fmtMoney(amt)}</span></div>`;
+  }).join('');
+
+  const sortedExpenses = splitData.expenses.slice().sort((a,b)=> (b.date||'').localeCompare(a.date||'') || String(b.id).localeCompare(String(a.id)));
+  const COLLAPSE_LIMIT = 6;
+  const visibleExpenses = showAllExpenses ? sortedExpenses : sortedExpenses.slice(0, COLLAPSE_LIMIT);
+  const hasMoreExpenses = sortedExpenses.length > COLLAPSE_LIMIT;
+
+  const expenseListHtml = splitData.expenses.length===0
+    ? `<div class="empty-hint">還沒有任何花費紀錄，新增一筆試試看吧 🌺</div>`
+    : visibleExpenses.map(exp=>{
+        const c = catInfo(exp.category);
+        const dateLabel = exp.date ? exp.date+'　' : '';
+        const shares = computeExpenseShares(exp);
+        const shareText = exp.splitAmong.map(m=> `${m} ${fmtMoney(shares[m]||0)}`).join('、');
+        return `
+        <div class="expense-item">
+          <div class="top">
+            <div class="desc"><span class="cat-tag">${c.emoji} ${c.label}</span>${exp.desc}</div>
+            <div class="amount">${fmtMoney(exp.amount)}</div>
+          </div>
+          <div class="meta">${dateLabel}由 <b>${exp.paidBy}</b> 支付　·　依人數比例分攤<br>${shareText}</div>
+          <div class="item-actions"><button class="del-exp" data-del-exp="${exp.id}">🗑 刪除這筆</button></div>
+        </div>`;
+      }).join('') + (hasMoreExpenses ? `<button class="toggle-list-btn" id="toggleExpBtn">${showAllExpenses ? '▲ 只顯示最近 '+COLLAPSE_LIMIT+' 筆' : '▼ 顯示全部 '+sortedExpenses.length+' 筆'}</button>` : '');
+
+  const balanceRows = splitData.members.map(m=>{
+    const v = Math.round((balance[m]||0)*100)/100;
+    const cls = v>0.5? 'positive' : (v<-0.5? 'negative':'zero');
+    const label = v>0.5? '多付了' : (v<-0.5? '該補款':'剛好結清');
+    return `<div class="balance-row"><span class="name">${m}</span><span>${label}　<span class="amt ${cls}">${fmtMoney(Math.abs(v))}</span></span></div>`;
+  }).join('');
+
+  const settleHtml = settlements.length===0
+    ? `<div class="empty-hint">目前帳務已平衡，不需要互相轉帳 🎉</div>`
+    : settlements.map(s=>`<div class="settle-item"><span>💸</span><b>${s.from}</b> 應付給 <b class="to">${s.to}</b><span style="margin-left:auto; font-weight:900;">${fmtMoney(s.amount)}</span></div>`).join('');
+
+  panel.innerHTML = `
+    <div class="day-title"><div><h2>分帳記帳</h2><div class="day-note">記錄每一筆花費由誰代墊、由誰分攤，最後自動算出多退少補</div></div></div>
+    <div class="local-note">📱 資料只會儲存在這個瀏覽器裡（換裝置或清除瀏覽器資料會遺失），建議記帳結束後按下方「匯出 Excel」備份一份。</div>
+
+    <button class="export-card" id="exportExcelBtn"><span>📊</span><span>匯出成 Excel</span></button>
+
+    <div class="split-section">
+      <h3>旅伴</h3>
+      <div class="member-chips">${memberChips}</div>
+      <div class="add-row">
+        <input type="text" id="newMemberInput" placeholder="可一次貼上多位，用逗號或換行分隔">
+        <button id="addMemberBtn">加入旅伴</button>
+      </div>
+    </div>
+
+    <div class="split-section">
+      <h3>新增花費</h3>
+      <div class="expense-form">
+        <div class="row"><label>類別</label><select id="expCategory">${categoryOptions}</select></div>
+        <div class="row"><label>日期</label><input type="date" id="expDate" value="${splitData.lastDate||''}"></div>
+        <div class="row"><label>項目名稱</label><input type="text" id="expDesc" placeholder="例如：青洞潛水體驗 / 唐吉訶德"></div>
+        <div class="row"><label>金額（¥）</label><input type="number" id="expAmount" min="0" placeholder="0"></div>
+        <div class="row"><label>錢是誰付的</label><select id="expPaidBy">${payerOptions}</select></div>
+        <div class="row"><label style="display:flex; align-items:center;">由誰分攤　<button type="button" class="split-quick" id="selectAllBtn">全選</button></label><div class="split-checks" id="splitChecksBox">${splitChecks}</div></div>
+        <button class="submit-btn" id="addExpenseBtn">＋ 加入這筆花費</button>
+      </div>
+    </div>
+
+    <div class="quick-jump"><a href="#sec-summary">📊 看結算</a><a href="#sec-list">🧾 看花費明細</a></div>
+
+    <div class="split-section" id="sec-summary">
+      <h3>依類別統計</h3>
+      <div class="cat-grid">${catStatsHtml}</div>
+      <h3 style="margin-top:16px;">結算總覽（多退少補）</h3>
+      <div class="summary-card">
+        <div class="total-row"><span class="label">目前總花費</span><span class="value">${fmtMoney(totalAmount)}</span></div>
+        ${balanceRows}
+      </div>
+      <h3 style="margin-top:6px;">建議轉帳</h3>
+      ${settleHtml}
+    </div>
+
+    <div class="split-section" id="sec-list">
+      <h3>花費紀錄</h3>
+      ${expenseListHtml}
+    </div>
+  `;
+
+  panel.querySelectorAll('[data-remove-member]').forEach(btn=>{
+    btn.onclick=()=>{
+      const name = btn.dataset.removeMember;
+      if(splitData.members.length<=1){ alert('至少要保留一位旅伴喔'); return; }
+      const involved = splitData.expenses.some(e=> e.paidBy===name || e.splitAmong.includes(name));
+      if(involved && !confirm(`「${name}」已有相關花費紀錄，移除將一併從紀錄中移除，確定嗎？`)) return;
+      splitData.members = splitData.members.filter(m=>m!==name);
+      splitData.expenses.forEach(e=>{ e.splitAmong = e.splitAmong.filter(m=>m!==name); });
+      splitData.expenses = splitData.expenses.filter(e=> e.paidBy!==name);
+      pushSplitData(); refreshSplitPanel();
+    };
+  });
+
+  panel.querySelector('#addMemberBtn').onclick=()=>{
+    const input = panel.querySelector('#newMemberInput');
+    const raw = input.value.trim();
+    if(raw==='') return;
+    const names = raw.split(/[,，、\n]+/).map(s=>s.trim()).filter(Boolean);
+    let added = 0, skipped = 0;
+    names.forEach(name=>{
+      if(splitData.members.includes(name)){ skipped++; return; }
+      splitData.members.push(name);
+      added++;
+    });
+    input.value='';
+    pushSplitData(); refreshSplitPanel();
+    if(skipped>0) alert(`已新增 ${added} 位旅伴，其中 ${skipped} 位名字重複已略過。`);
+  };
+  panel.querySelector('#newMemberInput').addEventListener('keydown',(e)=>{
+    if(e.key==='Enter'){ e.preventDefault(); panel.querySelector('#addMemberBtn').click(); }
+  });
+
+  panel.querySelector('#selectAllBtn').onclick=()=>{
+    panel.querySelectorAll('#splitChecksBox input[type=checkbox]').forEach(cb=> cb.checked=true);
+  };
+
+  panel.querySelector('#addExpenseBtn').onclick=()=>{
+    const category = panel.querySelector('#expCategory').value;
+    const date = panel.querySelector('#expDate').value || splitData.lastDate;
+    const desc = panel.querySelector('#expDesc').value.trim();
+    const amount = Number(panel.querySelector('#expAmount').value);
+    const paidBy = panel.querySelector('#expPaidBy').value;
+    const among = Array.from(panel.querySelectorAll('#splitChecksBox input[type=checkbox]:checked')).map(cb=>cb.value);
+    if(desc===''){ alert('請輸入項目名稱'); return; }
+    if(!amount || amount<=0){ alert('請輸入正確的金額'); return; }
+    if(among.length===0){ alert('請至少選擇一位分攤的人'); return; }
+    splitData.expenses.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7), desc, amount, date, category, paidBy, splitAmong:among});
+    splitData.lastDate = date;
+    pushSplitData(); refreshSplitPanel();
+  };
+
+  panel.querySelectorAll('[data-del-exp]').forEach(btn=>{
+    btn.onclick=()=>{
+      if(!confirm('確定要刪除這筆花費嗎？')) return;
+      splitData.expenses = splitData.expenses.filter(e=>String(e.id)!==String(btn.dataset.delExp));
+      pushSplitData(); refreshSplitPanel();
+    };
+  });
+
+  const toggleBtn = panel.querySelector('#toggleExpBtn');
+  if(toggleBtn) toggleBtn.onclick = ()=>{ showAllExpenses = !showAllExpenses; refreshSplitPanel(); };
+
+  panel.querySelector('#exportExcelBtn').onclick = exportSplitToExcel;
+}
+
+function exportSplitToExcel(){
+  if(typeof XLSX === 'undefined'){ alert('目前沒有網路連線，暫時無法匯出 Excel，請連上網路後再試一次。'); return; }
+  if(splitData.expenses.length===0){ alert('目前還沒有任何花費紀錄，先輸入一些資料再匯出喔！'); return; }
+
+  const expenseRows = splitData.expenses.slice().sort((a,b)=> (a.date||'').localeCompare(b.date||'')).map(e=>{
+    const c = catInfo(e.category);
+    const shares = computeExpenseShares(e);
+    return {
+      '日期': e.date||'', '類別': `${c.emoji} ${c.label}`, '項目': e.desc, '金額(¥)': e.amount,
+      '付款人': e.paidBy, '分攤旅伴': e.splitAmong.join('、'),
+      '各自分攤金額': e.splitAmong.map(m=>`${m} ¥${Math.round(shares[m]||0)}`).join('、')
+    };
+  });
+  expenseRows.push({'日期':'', '類別':'', '項目':'總計', '金額(¥)': splitData.expenses.reduce((s,e)=>s+e.amount,0), '付款人':'', '分攤旅伴':'', '各自分攤金額':''});
+
+  const balance = computeBalances();
+  const balanceRows = splitData.members.map(m=>{
+    const v = Math.round((balance[m]||0)*100)/100;
+    return {'旅伴': m, '狀態': v>0.5?'多退':(v<-0.5?'少補':'剛好結清'), '金額(¥)': Math.abs(v)};
+  });
+  const settlements = computeSettlements(balance);
+  const settleRows = settlements.length>0
+    ? settlements.map(s=>({'付款人': s.from, '收款人': s.to, '金額(¥)': Math.round(s.amount)}))
+    : [{'付款人':'-', '收款人':'-', '金額(¥)':'目前帳務已平衡，不需轉帳'}];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(expenseRows), '花費明細');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(balanceRows), '結算總覽');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(settleRows), '建議轉帳');
+  XLSX.writeFile(wb, '沖繩６日５夜_分帳紀錄.xlsx');
+}
+
+render();
+bindFlightInputs();
+</script>
+</body>
+</html>
