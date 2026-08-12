@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <style>
   :root{
     --ink:#163449;
@@ -335,6 +337,13 @@
   .cat-amt{display:block; font-family:'Space Mono',monospace; font-weight:700; font-size:14px; margin-top:3px;}
   .quick-jump{display:flex; gap:10px; margin:4px 0 18px; font-size:12px;}
   .quick-jump a{color:var(--sky); text-decoration:none; border-bottom:1px dashed var(--sky);}
+  .sync-badge{
+    display:block; font-size:13px; font-weight:900; padding:9px 14px; border-radius:12px;
+    margin:8px 0 12px; border:2px solid currentColor; text-align:center;
+  }
+  .sync-badge.sync-ok{background:rgba(31,138,130,0.12); color:var(--lagoon-deep);}
+  .sync-badge.sync-mid{background:rgba(217,164,65,0.16); color:#8a611b;}
+  .sync-badge.sync-off{background:rgba(11,79,108,0.10); color:var(--ocean);}
   .local-note{
     font-size:11.5px; color:#4C6B7A; background:var(--paper2); border:1px solid var(--line);
     border-radius:10px; padding:8px 12px; margin:8px 0 16px;
@@ -493,12 +502,100 @@ const defaultTripData = {
 };
 let tripData = JSON.parse(JSON.stringify(loadLocal('okinawaTripData', defaultTripData)));
 
-const flightData = loadLocal('okinawaFlightData', {
+let flightData = loadLocal('okinawaFlightData', {
   outbound:{ date:'', checkin:'11:10', depTime:'13:10', arrTime:'15:45', from:'臺中清泉崗機場 RMQ', to:'那霸機場 OKA', flight:'' },
   inbound:{ date:'', checkin:'18:10', depTime:'20:10', arrTime:'21:50', from:'那霸機場 OKA', to:'臺中清泉崗機場 RMQ', flight:'' }
 });
-function pushTripData(){ saveLocal('okinawaTripData', tripData); }
-function pushFlightData(){ saveLocal('okinawaFlightData', flightData); }
+function pushTripData(){
+  saveLocal('okinawaTripData', tripData);
+  if(tripRef){ updateSyncBadge('syncing'); tripRef.set(tripData).then(()=>updateSyncBadge('synced')).catch(()=>updateSyncBadge('offline')); }
+}
+function pushFlightData(){
+  saveLocal('okinawaFlightData', flightData);
+  if(flightRef){ updateSyncBadge('syncing'); flightRef.set(flightData).then(()=>updateSyncBadge('synced')).catch(()=>updateSyncBadge('offline')); }
+}
+
+/* ---------------- Firebase 雲端同步 ---------------- */
+// 這裡填入你自己 Firebase 專案的設定值（Firebase 主控台 → 專案設定 → 一般 → 你的應用程式 → SDK 設定），
+// 填好之後所有裝置打開這個檔案都會看到同一份即時同步的資料。沒有填的話，資料只會存在各自的瀏覽器裡。
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+let tripRef = null, flightRef = null, splitRef = null;
+let firebaseReady = false;
+
+function updateSyncBadge(state){
+  document.querySelectorAll('[data-sync-badge]').forEach(el=>{
+    const map = {
+      synced: {text:'☁️ 已同步（所有人看到同一份資料）', cls:'sync-ok'},
+      syncing: {text:'☁️ 同步中…', cls:'sync-mid'},
+      offline: {text:'⚠️ 尚未連上雲端，資料僅存於這個瀏覽器', cls:'sync-off'}
+    };
+    const m = map[state] || map.offline;
+    el.textContent = m.text;
+    el.className = 'sync-badge ' + m.cls;
+  });
+}
+
+function initFirebaseSync(){
+  if(firebaseConfig.apiKey === 'YOUR_API_KEY'){
+    // 尚未填入真實的 Firebase 設定值，維持本機儲存模式
+    updateSyncBadge('offline');
+    return;
+  }
+  try{
+    if(typeof firebase === 'undefined'){ updateSyncBadge('offline'); return; }
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    tripRef = db.ref('okinawaTripData');
+    flightRef = db.ref('okinawaFlightData');
+    splitRef = db.ref('okinawaSplitData');
+
+    const connectTimeout = setTimeout(()=>{ if(!firebaseReady) updateSyncBadge('offline'); }, 5000);
+
+    tripRef.on('value', (snap)=>{
+      clearTimeout(connectTimeout);
+      const val = snap.val();
+      const activeId = document.querySelector('.tab.active') ? document.querySelector('.tab.active').dataset.target : null;
+      if(val && val.days){ tripData = val; } else { tripRef.set(tripData); }
+      firebaseReady = true;
+      render();
+      bindFlightInputs();
+      if(activeId) switchPanel(activeId);
+      updateSyncBadge('synced');
+    }, ()=> updateSyncBadge('offline'));
+
+    flightRef.on('value', (snap)=>{
+      const val = snap.val();
+      if(val){ flightData = val; } else { flightRef.set(flightData); }
+      document.querySelectorAll('[data-flight]').forEach(input=>{
+        input.value = flightData[input.dataset.flight][input.dataset.field] || '';
+      });
+    }, ()=>{});
+
+    splitRef.on('value', (snap)=>{
+      const val = snap.val();
+      if(val){
+        splitData = val;
+        if(!splitData.expenses) splitData.expenses = [];
+        if(!splitData.members) splitData.members = [];
+      } else {
+        splitRef.set(splitData);
+      }
+      refreshSplitPanel();
+    }, ()=>{});
+  }catch(e){
+    console.warn('Firebase 初始化失敗，資料僅會保存在本機瀏覽器', e);
+    updateSyncBadge('offline');
+  }
+}
 
 /* ---------------- 交通方式 ---------------- */
 const transportMeta = {
@@ -595,6 +692,7 @@ function render(){
   flightPanel.id='panel-flight';
   flightPanel.innerHTML = `
     <div class="day-title"><div><h2>航班資訊</h2><div class="day-note">臺中清泉崗 ⇄ 那霸，時間依行程表估算。點右下角✎進入編輯模式即可修改航空公司與班號</div></div></div>
+    <div class="sync-badge sync-off" data-sync-badge>⚠️ 尚未連上雲端，資料僅存於這個瀏覽器</div>
     ${renderFlightCard('outbound','去程 · 臺中→那霸','outbound')}
     ${renderFlightCard('inbound','回程 · 那霸→臺中','inbound')}
     <div class="info-card"><h3>🚗 租車</h3><p><b>Good Speed Rent a Car</b>（那覇空港前店）</p><p>取車：Day1 16:54　還車：Day6 17:07</p></div>
@@ -810,7 +908,10 @@ const defaultSplitData = {
   expenses: []
 };
 let splitData = JSON.parse(JSON.stringify(loadLocal('okinawaSplitData', defaultSplitData)));
-function pushSplitData(){ saveLocal('okinawaSplitData', splitData); }
+function pushSplitData(){
+  saveLocal('okinawaSplitData', splitData);
+  if(splitRef){ updateSyncBadge('syncing'); splitRef.set(splitData).then(()=>updateSyncBadge('synced')).catch(()=>updateSyncBadge('offline')); }
+}
 
 function fmtMoney(n){ const sign = n<0?'-':''; return sign + '¥' + Math.abs(Math.round(n)); }
 function computeExpenseShares(exp){
@@ -918,7 +1019,8 @@ function refreshSplitPanel(){
 
   panel.innerHTML = `
     <div class="day-title"><div><h2>分帳記帳</h2><div class="day-note">記錄每一筆花費由誰代墊、由誰分攤，最後自動算出多退少補</div></div></div>
-    <div class="local-note">📱 資料只會儲存在這個瀏覽器裡（換裝置或清除瀏覽器資料會遺失），建議記帳結束後按下方「匯出 Excel」備份一份。</div>
+    <div class="sync-badge sync-off" data-sync-badge>⚠️ 尚未連上雲端，資料僅存於這個瀏覽器</div>
+    <div class="local-note">📱 尚未設定 Firebase 雲端同步前，資料只會儲存在這個瀏覽器裡（換裝置或清除瀏覽器資料會遺失），建議記帳結束後按下方「匯出 Excel」備份一份。</div>
 
     <button class="export-card" id="exportExcelBtn"><span>📊</span><span>匯出成 Excel</span></button>
 
@@ -1063,6 +1165,7 @@ function exportSplitToExcel(){
 
 render();
 bindFlightInputs();
+initFirebaseSync();
 </script>
 </body>
 </html>
