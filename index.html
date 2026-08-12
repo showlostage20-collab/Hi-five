@@ -723,8 +723,6 @@ function render(){
       </div>
       <div class="summary" data-summary="${day.id}">
         <div class="item time"><div class="label">自駕交通時間</div><div class="value" data-sum-time>0 分</div></div>
-        <div class="divider"></div>
-        <div class="item cost"><div class="label">交通花費</div><div class="value" data-sum-cost>¥0</div></div>
       </div>
       <div class="day-note" style="margin:6px 2px 0;">📍 每個行程都已連結 Google 地圖；新增或刪除行程後，同一天的自駕時間會自動依地圖座標重新估算（直線距離概算，僅供參考）。</div>
       <div class="timeline" data-day="${day.id}"></div>
@@ -794,15 +792,11 @@ function renderStop(day, stop, idx){
     <div class="desc">${meta.label}${stop.transport.from? '　'+stop.transport.from+' → '+stop.title : ''}</div>
     <div class="stat">
       <input type="number" min="0" value="${stop.transport.min}" data-role="min"><span class="unit">分</span>
-      <input type="number" min="0" value="${stop.transport.cost}" data-role="cost"><span class="unit">¥</span>
     </div>
   `;
   const minInput = tRow.querySelector('[data-role="min"]');
-  const costInput = tRow.querySelector('[data-role="cost"]');
   minInput.oninput=()=>{ stop.transport.min = Number(minInput.value)||0; updateSummary(day.id); };
-  costInput.oninput=()=>{ stop.transport.cost = Number(costInput.value)||0; updateSummary(day.id); };
   minInput.addEventListener('blur', ()=> pushTripData());
-  costInput.addEventListener('blur', ()=> pushTripData());
   wrap.appendChild(tRow);
 
   const card = document.createElement('div');
@@ -868,12 +862,10 @@ function updateSummary(dayId){
   const day = tripData.days.find(d=>d.id===dayId);
   if(!day) return;
   const totalMin = day.stops.reduce((s,st)=>s+(Number(st.transport.min)||0),0);
-  const totalCost = day.stops.reduce((s,st)=>s+(Number(st.transport.cost)||0),0);
   const box = document.querySelector(`.summary[data-summary="${dayId}"]`);
   if(!box) return;
   const h = Math.floor(totalMin/60), m = totalMin%60;
   box.querySelector('[data-sum-time]').textContent = h>0? `${h} 時 ${m} 分` : `${m} 分`;
-  box.querySelector('[data-sum-cost]').textContent = `¥${totalCost}`;
 }
 
 function switchPanel(id){
