@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>沖繩６日５夜・海島慢旅</title>
+<title>沖就對了・沖繩六天五夜</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -160,6 +160,15 @@
   .stop.type-drive::before{background:var(--sky);}
   .stop.type-flight::before{background:var(--ink);}
   .stop-head{display:flex; align-items:center; gap:10px; cursor:pointer; flex-wrap:wrap;}
+  .drag-handle{
+    display:none; align-items:center; justify-content:center; touch-action:none; user-select:none;
+    width:26px; height:34px; flex:0 0 auto; font-size:19px; line-height:1; color:#9a9a9f;
+    cursor:grab; border-radius:8px;
+  }
+  .drag-handle:active{cursor:grabbing;}
+  body.editing .drag-handle{display:flex;}
+  .stop-wrap.dragging{opacity:.45;}
+  .stop-wrap.dragging .stop{box-shadow:0 12px 26px rgba(11,79,108,0.35); border-color:var(--coral-deep);}
   .stop-time{
     font-family:'Space Mono',monospace; font-weight:700; font-size:15px; color:var(--ink);
     background:var(--paper2); border:2px solid var(--ink); border-radius:8px; padding:6px 8px; flex:0 0 auto;
@@ -376,7 +385,7 @@
 
 <div class="hero">
   <div class="eyebrow">OKINAWA · 6 DAYS 5 NIGHTS</div>
-  <h1>沖繩６日５夜・<span>海島慢旅</span></h1>
+  <h1>沖就對了<span>・沖繩六天五夜</span></h1>
   <p class="sub">臺中出發 × 浦添為家 × 青洞潛水・水族館・老街市場・深夜美食巡禮</p>
   <div class="base-card">
     <span>🏨</span>
@@ -724,7 +733,7 @@ function render(){
       <div class="summary" data-summary="${day.id}">
         <div class="item time"><div class="label">自駕交通時間</div><div class="value" data-sum-time>0 分</div></div>
       </div>
-      <div class="day-note" style="margin:6px 2px 0;">📍 每個行程都已連結 Google 地圖；新增或刪除行程後，同一天的自駕時間會自動依地圖座標重新估算（直線距離概算，僅供參考）。</div>
+      <div class="day-note" style="margin:6px 2px 0;">📍 每個行程都已連結 Google 地圖；編輯模式中可按住「⠿」拖曳調整順序，新增／刪除／拖曳排序後，同一天的自駕時間會自動依地圖座標重新估算（直線距離概算，僅供參考）。</div>
       <div class="timeline" data-day="${day.id}"></div>
       <button class="add-stop-btn" data-day="${day.id}">＋ 新增一個行程</button>
     `;
@@ -783,6 +792,8 @@ function render(){
 
 function renderStop(day, stop, idx){
   const wrap = document.createElement('div');
+  wrap.className = 'stop-wrap';
+  wrap._stopRef = stop;
 
   const meta = transportMeta[stop.transport.mode] || transportMeta.drive;
   const tRow = document.createElement('div');
@@ -804,6 +815,7 @@ function renderStop(day, stop, idx){
   const fieldKey = day.id + '-' + idx;
   card.innerHTML = `
     <div class="stop-head">
+      <div class="drag-handle" title="按住拖曳排序">⠿</div>
       <div class="stop-time">${stop.time}</div>
       <div class="stop-tag">${stop.tag || typeTagLabel[stop.type] || ''}</div>
       <div class="stop-title" id="stopTitleText-${fieldKey}">${stop.title}</div>
@@ -823,7 +835,7 @@ function renderStop(day, stop, idx){
   `;
   const head = card.querySelector('.stop-head');
   head.onclick=(e)=>{
-    if(e.target.closest('.field-edit-btn')) return;
+    if(e.target.closest('.field-edit-btn') || e.target.closest('.drag-handle')) return;
     card.classList.toggle('open');
   };
   card.querySelector(`[data-edit-stop-title="${fieldKey}"]`).onclick=(e)=>{
@@ -855,6 +867,41 @@ function renderStop(day, stop, idx){
     pushTripData();
   };
   wrap.appendChild(card);
+
+  const handle = card.querySelector('.drag-handle');
+  handle.addEventListener('pointerdown', (e)=>{
+    if(!document.body.classList.contains('editing')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    try{ handle.setPointerCapture(e.pointerId); }catch(err){}
+    wrap.classList.add('dragging');
+    const timeline = wrap.parentElement;
+
+    const onMove = (ev)=>{
+      const overEl = document.elementFromPoint(ev.clientX, ev.clientY);
+      const targetWrap = overEl ? overEl.closest('.stop-wrap') : null;
+      if(targetWrap && targetWrap !== wrap && targetWrap.parentElement === timeline){
+        const rect = targetWrap.getBoundingClientRect();
+        const before = (ev.clientY - rect.top) < rect.height/2;
+        timeline.insertBefore(wrap, before? targetWrap : targetWrap.nextSibling);
+      }
+    };
+    const onUp = ()=>{
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      wrap.classList.remove('dragging');
+      const newOrder = Array.from(timeline.children).map(w=>w._stopRef).filter(Boolean);
+      day.stops = newOrder;
+      autoRecalcDay(day);
+      timeline.innerHTML = '';
+      day.stops.forEach((s, idx2)=> timeline.appendChild(renderStop(day, s, idx2)));
+      updateSummary(day.id);
+      pushTripData();
+    };
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp, {once:true});
+  });
+
   return wrap;
 }
 
